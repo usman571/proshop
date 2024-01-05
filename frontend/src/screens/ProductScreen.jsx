@@ -1,22 +1,29 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Rating from "../components/Ratting"; // Corrected the import name to match the component's filename
-import axios from "axios";
+// Importing the hooks using destructuring assignment
+import { useGetProductDetailsQuery } from "../slices/productApiSlice.js";
+import Loader from "../components/Loader.jsx";
+import Message from "../components/message.jsx";
 
 const ProductScreen = () => {
-  const [product, setProduct] = useState({});
-
   const { id: productId } = useParams();
+  const {
+    data: product,
+    isLoading,
+    isError,
+  } = useGetProductDetailsQuery(productId);
 
-  // Check if the product is not found
+  if (isLoading) {
+    return <Loader />;
+  }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data } = await axios.get(`/api/products/${productId}`);
-      setProduct(data);
-    };
-    fetchProducts()
-  }, [productId]);
+  if (isError) {
+    return (
+      <Message variant={"error"}>
+        {isError?.data?.message || isError.error}
+      </Message>
+    );
+  }
 
   return (
     <div className="my-8">
