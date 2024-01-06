@@ -1,12 +1,20 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Rating from "../components/Ratting"; // Corrected the import name to match the component's filename
 // Importing the hooks using destructuring assignment
 import { useGetProductDetailsQuery } from "../slices/productApiSlice.js";
 import Loader from "../components/Loader.jsx";
 import Message from "../components/message.jsx";
+import { useState } from "react";
+import { addToCart } from "../slices/createSlice.js";
+import { useDispatch } from "react-redux";
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [qty, setQty] = useState(1);
   const {
     data: product,
     isLoading,
@@ -24,6 +32,11 @@ const ProductScreen = () => {
       </Message>
     );
   }
+
+  const addToCartHandler = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate("/cart");
+  };
 
   return (
     <div className="my-8">
@@ -93,6 +106,30 @@ const ProductScreen = () => {
             </div>
             <hr className="bg-gray-300 h-[2px]" />
 
+            {product.countInStock > 0 && (
+              <div className="flex items-center mt-3">
+                <label
+                  htmlFor="quantity"
+                  className="text-gray-700 font-medium mr-2"
+                >
+                  Quantity:
+                </label>
+                <select
+                  id="quantity"
+                  name="quantity"
+                  className="border border-gray-300 rounded-md px-2 py-1"
+                  value={qty}
+                  onChange={(e) => setQty(Number(e.target.value))}
+                >
+                  {[...Array(product.countInStock).keys()].map((count) => (
+                    <option key={count + 1} value={count + 1}>
+                      {count + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex mt-3">
               <button
                 className={`inline-flex w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white ${
@@ -101,6 +138,7 @@ const ProductScreen = () => {
                     : "cursor-not-allowed opacity-50"
                 }`}
                 disabled={product.countInStock === 0}
+                onClick={addToCartHandler}
               >
                 {product.countInStock > 0 ? "Add To Cart" : "Out of Stock"}
               </button>
