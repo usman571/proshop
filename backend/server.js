@@ -1,8 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 dotenv.config();
 import connectDB from "./config/db.js";
-import ProductRoutes from "./routes/ProductRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const PORT = process.env.PORT || 5000;
@@ -10,14 +12,19 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 app.get("/", (req, res) => {
   res.send("api is running ");
 });
 
-app.use("/api/products", ProductRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
 
-app.use(notFound) 
-app.use(errorHandler)
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
