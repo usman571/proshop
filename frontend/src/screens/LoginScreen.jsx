@@ -1,20 +1,50 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import FormContainer from "../components/FormConatiner";
 import Loader from "../components/Loader";
+import FormContainer from "../components/FormContainer";
+
+import { useLoginMutation } from "../slices/userApiSlice";
+import { setCredentials } from "../slices/authSlice";
+import { toast } from "react-toastify";
+
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [login, { isLoading }] = useLoginMutation();
+  const { userInfo } = useSelector((state) => state.auth);
+
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
-  const redirect = sp.get('redirect') || '/';
+  const redirect = sp.get("redirect") || "/";
+    // console.log(redirect)
+  useEffect(() => {
+    if (userInfo) {
+      navigate(redirect);
+    }
+  }, [navigate, redirect, userInfo]);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("submit");
+    try {
+      const res = await login({ email, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate(redirect);
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
   };
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate(redirect);
+    }
+  }, [userInfo, redirect, navigate]);
+
   return (
     <FormContainer>
       <h1 className="text-2xl font-semibold mb-4">Sign In</h1>
@@ -55,14 +85,15 @@ const LoginScreen = () => {
         </div>
 
         <button
-          
+          disabled={isLoading}
           type="submit"
-          className=" px-4 py-2 bg-gray-700 text-white rounded-md"
+          className={`px-4 py-2 rounded-md ${
+            isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-gray-700"
+          } text-white`}
         >
-          Sign In
+          {isLoading ? "Signing In..." : "Sign In"}
         </button>
-
-        {/* {isLoading && <Loader />} */}
+        {isLoading && <Loader />}
       </form>
 
       <div className="py-3">

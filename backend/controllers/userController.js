@@ -54,6 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } else {
+    console.error("User registration failed:", error);
     res.status(400);
     throw new Error("Invalid user data");
   }
