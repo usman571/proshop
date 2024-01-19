@@ -21,9 +21,11 @@ const HomeScreen = () => {
   return (
     <>
       {isLoading ? (
-       <Loader/>
+        <Loader />
       ) : isError ? (
-        <Message variant={'error'}>{isError?.data?.message || isError.error}</Message>
+        <Message variant={"error"}>
+          {isError?.data?.message || isError.error}
+        </Message>
       ) : (
         <>
           {" "}
@@ -32,7 +34,7 @@ const HomeScreen = () => {
             {products.map((item) => (
               <div
                 key={item._id}
-                className="w-full  sm:w-1/2 md:w-1/3 lg:w-1/4  p-2 "
+                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4  p-2 "
               >
                 <Product Product={item} />
               </div>

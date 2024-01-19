@@ -8,7 +8,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <main className="py-3 ]">
+      <main className="py-3 ">
         <div className="container mx-auto">
           <Outlet />
         </div>
